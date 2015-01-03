@@ -1,5 +1,4 @@
 #include <iostream>
-#include <map>
 #include <stdio.h>
 using namespace std;
 
@@ -61,41 +60,42 @@ int Utility::get(int x,int y){
 class UtilitySet{
 	
 private:
-	int total;
+	int N;
 	Utility* u;
 public:
 	UtilitySet(int);
-	void setUtility(int,Utility*);
-	Utility* getUtility(int);
+	void setUtility(int,int,Utility*);
+	Utility* getUtility(int,int);
 };
 
-UtilitySet::UtilitySet(int t){
-	
-	total=t;
-	u=new Utility[total];
+UtilitySet::UtilitySet(int n){
+	N=n;
+	u=new Utility[N*N];
 }
-void UtilitySet::setUtility(int index,Utility* util){
+void UtilitySet::setUtility(int X,int Y,Utility* util){
 	
-	u[index]=*util;
+	u[X*N+Y]=*util;
 }
-Utility* UtilitySet::getUtility(int index){
+Utility* UtilitySet::getUtility(int X,int Y){
 	
-	return &u[index];
+	return &u[X*N+Y];
 }
 
 int main(){
 	
-	int t[]={1,3,2,1};
-	Utility* u=new Utility(2,&t[0]);
-	u->setUtility(&t[0]);
-	u->printUtility();
-	cout<<u->get(0,1)<<endl;
+	int N=4;					//Number of variables
+	int t02[]={1,3,2,1};		//Function between x1 & x3
+	int t23[]={3,4,10,1};		//Function between x3 & x4
+	int t12[]={1,5,4,2};		//Function between x2 & x3
 	
-	UtilitySet* set=new UtilitySet(3);
-	set->setUtility(0,u);
+	UtilitySet* set=new UtilitySet(N);
+	set->setUtility(0,2,new Utility(2,&t02[0]));
+	set->setUtility(2,3,new Utility(2,&t23[0]));
+	set->setUtility(1,2,new Utility(2,&t12[0]));
 	
-	Utility* ut=set->getUtility(0);
-	ut->printUtility();
+	set->getUtility(0,2)->printUtility();
+	set->getUtility(2,3)->printUtility();
+	set->getUtility(1,2)->printUtility();
 	
 	return 0;
 }
