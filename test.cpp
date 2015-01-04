@@ -169,24 +169,27 @@ void Node::showMessages(){
 
 int main(){
 	
-	int N=4;					//Number of variables
+	int N=5;					//Number of variables
 	int t13[]={1,3,2,1};		//Function between x1 & x3
 	int t34[]={3,4,10,1};		//Function between x3 & x4
 	int t23[]={1,5,4,2};		//Function between x2 & x3
+	int t15[]={2,4,8,3};		//Function between x2 & x3
 	
 	set=new UtilitySet(N-1);
 	set->setUtility(1,3,new Utility(2,&t13[0]));
 	set->setUtility(3,4,new Utility(2,&t34[0]));
 	set->setUtility(2,3,new Utility(2,&t23[0]));
+	set->setUtility(1,5,new Utility(2,&t15[0]));
 	
-	set->getUtility(3,1)->printUtility();
-	set->getUtility(3,4)->printUtility();
-	set->getUtility(2,3)->printUtility();
+	//set->getUtility(3,1)->printUtility();
+	//set->getUtility(3,4)->printUtility();
+	//set->getUtility(2,3)->printUtility();
 	
 	Node* n=new Node[N+1];
-	(*(n+1)).degree=1;
+	(*(n+1)).degree=2;
 	(*(n+1)).id=1;
 	(*(n+1)).addNeighbour(3);
+	(*(n+1)).addNeighbour(5);
 	
 	(*(n+2)).degree=1;
 	(*(n+2)).id=2;
@@ -202,17 +205,23 @@ int main(){
 	(*(n+4)).id=4;
 	(*(n+4)).addNeighbour(3);
 	
-	int m1[]={0,0};
+	(*(n+5)).degree=1;
+	(*(n+5)).id=5;
+	(*(n+5)).addNeighbour(1);
+	
+	int m5[]={0,0};
 	int m2[]={0,0};
 	int m4[]={0,0};
-	(*(n+1)).sendMessage(n+3,&m1[0]);
+	(*(n+5)).sendMessage(n+1,&m5[0]);
 	(*(n+2)).sendMessage(n+3,&m2[0]);
 	(*(n+4)).sendMessage(n+3,&m4[0]);
 	(*(n+3)).showMessages();
 	
+	(*(n+1)).broadCast(n);
 	(*(n+3)).broadCast(n);
+	(*(n+1)).broadCast(n);
 	
-	(*(n+1)).showMessages();
+	(*(n+5)).showMessages();
 	(*(n+2)).showMessages();
 	(*(n+4)).showMessages();
 	
