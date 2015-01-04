@@ -89,7 +89,8 @@ UtilitySet* set;
 class Node{
 	
 public:
-	int degree,id;
+	int degree,id,color;
+	vector<int> z;
 	vector<int> neighbours;
 	vector< vector<int> > messages;
 	Node();
@@ -102,6 +103,9 @@ public:
 	void broadCast(Node*);
 };
 Node::Node(){
+	degree=0;
+	z.push_back(0);
+	z.push_back(0);
 }
 bool Node::isNeighbour(int n){
 	for(int i=0;i<neighbours.size();i++){
@@ -142,6 +146,11 @@ void Node::sendMessage(Node* n,int* m){
 	
 	int a=a1>a2?a1:a2,b=b1>b2?b1:b2;v.push_back(a);v.push_back(b);
 	
+	for(int i=0;i<(*n).messages.size();i++){
+		if((*n).messages[i][0]==id){
+			(*n).messages.erase((*n).messages.begin()+i,(*n).messages.begin()+i+1);
+		}
+	}
 	(*n).messages.push_back(v);
 }
 void Node::broadCast(Node* root){
@@ -157,8 +166,9 @@ void Node::broadCast(Node* root){
 	}
 }
 void Node::showMessages(){
+	cout<<id<<endl;
 	for(int i=0;i<messages.size();i++){
-		cout<<"To "<<id<<" | From "<<messages[i][0]<<" - ";
+		cout<<"-->From "<<messages[i][0]<<" - ";
 		for(int j=1;j<messages[i].size();j++){
 			cout<<messages[i][j]<<" ";
 		}
@@ -169,62 +179,67 @@ void Node::showMessages(){
 
 int main(){
 	
-	int N=5;					//Number of variables
-	int t13[]={1,3,2,1};		//Function between x1 & x3
-	int t34[]={3,4,10,1};		//Function between x3 & x4
-	int t23[]={1,5,4,2};		//Function between x2 & x3
-	int t15[]={2,4,8,3};		//Function between x2 & x3
+	freopen("input.txt","r",stdin);//redirects standard input
 	
-	set=new UtilitySet(N-1);
-	set->setUtility(1,3,new Utility(2,&t13[0]));
-	set->setUtility(3,4,new Utility(2,&t34[0]));
-	set->setUtility(2,3,new Utility(2,&t23[0]));
-	set->setUtility(1,5,new Utility(2,&t15[0]));
+	int N;
+	scanf("%d",&N);				//Number of variables
+	set=new UtilitySet(N);		//Number of utility functions	//Should've been UtilitySet(N-1) for 0-based indexing
+	Node* n=new Node[N+1];		//Node represents variable		//Should've been Node[N] for 0-based indexing
 	
-	//set->getUtility(3,1)->printUtility();
-	//set->getUtility(3,4)->printUtility();
-	//set->getUtility(2,3)->printUtility();
+	//int dimension;
+	//scanf("%d",&dimension);
 	
-	Node* n=new Node[N+1];
-	(*(n+1)).degree=2;
-	(*(n+1)).id=1;
-	(*(n+1)).addNeighbour(3);
-	(*(n+1)).addNeighbour(5);
+	for(int count=0;count<N-1;count++){
+		
+		int x,y;
+		scanf("%d%d",&x,&y);	//Connection exists between x and y
+		
+		int matrix[4];
+		scanf("%d%d%d%d",&matrix[0],&matrix[1],&matrix[2],&matrix[3]);
+		set->setUtility(x,y,new Utility(2,&matrix[0]));			//Setup utility between x and y
+		
+		n[x].degree++;
+		n[y].degree++;
+		
+		n[x].addNeighbour(y);
+		n[y].addNeighbour(x);
+		
+		n[x].id=x;n[y].id=y;	//Unsmart, anyway
+	}
 	
-	(*(n+2)).degree=1;
-	(*(n+2)).id=2;
-	(*(n+2)).addNeighbour(3);
-	
-	(*(n+3)).degree=3;
-	(*(n+3)).id=3;
-	(*(n+3)).addNeighbour(1);
-	(*(n+3)).addNeighbour(2);
-	(*(n+3)).addNeighbour(4);
-	
-	(*(n+4)).degree=1;
-	(*(n+4)).id=4;
-	(*(n+4)).addNeighbour(3);
-	
-	(*(n+5)).degree=1;
-	(*(n+5)).id=5;
-	(*(n+5)).addNeighbour(1);
-	
-	int m5[]={0,0};
-	int m2[]={0,0};
-	int m4[]={0,0};
-	(*(n+5)).sendMessage(n+1,&m5[0]);
-	(*(n+2)).sendMessage(n+3,&m2[0]);
-	(*(n+4)).sendMessage(n+3,&m4[0]);
-	(*(n+3)).showMessages();
-	
-	(*(n+1)).broadCast(n);
-	(*(n+3)).broadCast(n);
-	(*(n+1)).broadCast(n);
-	
-	(*(n+5)).showMessages();
-	(*(n+2)).showMessages();
-	(*(n+4)).showMessages();
-	
-	cout<<endl;
+	int z[]={0,0};
+	int highestdegree=0;
+	for(int degree=1;degree<=N;degree++){
+		for(int i=1;i<=N;i++){
+			if(n[i].degree==degree){
+				if(degree==1)
+					n[i].sendMessage(&n[n[i].neighbours[0]],&z[0]);
+				else
+					n[i].broadCast(n);
+				if(degree>highestdegree)highestdegree=degree;
+			}
+		}
+	}
+	for(int degree=highestdegree-1;degree>1;degree--){
+		for(int i=1;i<=N;i++){
+			if(n[i].degree==degree)
+				n[i].broadCast(n);
+		}
+	}
+	for(int i=1;i<=N;i++){
+		n[i].showMessages();
+		for(int j=0;j<n[i].messages.size();j++){
+			n[i].z[0]+=n[i].messages[j][1];
+			n[i].z[1]+=n[i].messages[j][2];
+		}
+		if(n[i].z[0]>n[i].z[1]){
+			n[i].color=0;
+			cout<<"RED"<<endl;
+		}else{
+			n[i].color=1;
+			cout<<"BLUE"<<endl;
+		}
+		cout<<"-------------------------------------"<<endl;
+	}
 	return 0;
 }
