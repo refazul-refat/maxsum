@@ -74,11 +74,14 @@ UtilitySet::UtilitySet(int n){
 }
 void UtilitySet::setUtility(int X,int Y,Utility* util){
 	
-	u[X*N+Y]=*util;
+	u[(X-1)*N+Y]=*util;
+	int temp[]={util->get(0,0),util->get(1,0),util->get(0,1),util->get(1,1)};
+	Utility* t=new Utility(2,&temp[0]);
+	u[(Y-1)*N+X]=*t;
 }
 Utility* UtilitySet::getUtility(int X,int Y){
 	
-	return &u[X*N+Y];
+	return &u[(X-1)*N+Y];
 }
 
 int main(){
@@ -89,13 +92,13 @@ int main(){
 	int t12[]={1,5,4,2};		//Function between x2 & x3
 	
 	UtilitySet* set=new UtilitySet(N);
-	set->setUtility(0,2,new Utility(2,&t02[0]));
-	set->setUtility(2,3,new Utility(2,&t23[0]));
-	set->setUtility(1,2,new Utility(2,&t12[0]));
+	set->setUtility(1,3,new Utility(2,&t02[0]));
+	set->setUtility(3,4,new Utility(2,&t23[0]));
+	set->setUtility(2,3,new Utility(2,&t12[0]));
 	
-	set->getUtility(0,2)->printUtility();
+	set->getUtility(3,1)->printUtility();
+	set->getUtility(3,4)->printUtility();
 	set->getUtility(2,3)->printUtility();
-	set->getUtility(1,2)->printUtility();
 	
 	return 0;
 }
