@@ -239,7 +239,7 @@ int main(){
 			n[i].color=1;
 			cout<<"BLUE"<<endl;
 		}
-		cout<<"-------------------------------------"<<endl;
+		cout<<endl;
 	}
 	return 0;
 }
